@@ -1,3 +1,4 @@
+import { ItemView, TFile } from "obsidian";
 import type CanvasParentNodesPlugin from "./main";
 
 type CanvasRuntimeLike = {
@@ -20,47 +21,42 @@ interface CanvasViewWithRuntime {
     canvas?: CanvasRuntimeLike;
 }
 
+export interface CanvasView extends ItemView {
+    _loaded: boolean
+    file: TFile
+    canvas: any
+    leaf: any
+
+    getViewData(): string
+    setViewData(data: string): void
+
+    close(): void
+
+    data: string
+    lastSavedData: string
+    requestSave(): void
+}
+
 export async function zoomToNode(plugin: CanvasParentNodesPlugin, nodeId: string) {
-    const canvasData = plugin.CurrentCanvasData;
-    if (!canvasData) {
-        return;
-    }
-
-    const node = canvasData.nodes.find((n) => n.id === nodeId);
-    if (!node) {
-        return;
-    }
-
     const canvas = plugin.getActiveCanvas();
-    if (!runtime) {
-        console.log(runtime)
+    console.log("Current canvas data:", canvas);
+    if (!canvas) {
         console.warn("Canvas runtime API unavailable; cannot zoom to node.");
         return;
     }
 
-    const paddingFactor = 1.1;
-    const bbox: ZoomBoundingBox = {
-        minX: node.x - node.width * paddingFactor,
-        minY: node.y - node.height * paddingFactor,
-        maxX: node.x + node.width * paddingFactor,
-        maxY: node.y + node.height * paddingFactor,
-    };
-
-    if (typeof runtime.zoomToBbox === "function") {
-        runtime.zoomToBbox(bbox);
-    } else if (typeof runtime.zoomTo === "function") {
-        runtime.zoomTo(node.x, node.y, paddingFactor);
+    const node = canvas.data.nodes.find((n) => n.id === nodeId);
+    if (!node) {
+        return;
     }
 
-    const runtimeNode = runtime.nodes?.get?.(node.id);
-    if (typeof runtime.deselectAll === "function") {
-        runtime.deselectAll();
-    }
-    if (runtimeNode) {
-        if (typeof runtime.selectOnly === "function") {
-            runtime.selectOnly(runtimeNode);
-        } else if (typeof runtime.select === "function") {
-            runtime.select(runtimeNode);
-        }
-    }
+    canvas.zoomToBbox({
+        minX: node.x - node.width * 1,
+        minY: node.y - node.height * 1,
+        maxX: node.x + node.width * 1,
+        maxY: node.y + node.height * 1,
+    });
+    let target = canvas.nodes.get(node.id);
+    canvas.deselectAll();
+    canvas.select(target);
 }

@@ -6,7 +6,7 @@ import { ParentNodesView, VIEW_TYPE_PARENT_NODES, ParentNodesViewData, ParentNod
 export default class CanvasParentNodesPlugin extends Plugin {
 	settings: CanvasParentNodesSettings;
 	private parentNodesView: ParentNodesView | null = null;
-	private currentCanvasView: any = null;
+	currentCanvasView: any = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -69,6 +69,11 @@ export default class CanvasParentNodesPlugin extends Plugin {
 
 	private async getParentNodesViewData(): Promise<ParentNodesViewData> {
 		const file = this.app.workspace.getActiveFile();
+		const tempCanvasView = this.app.workspace.getActiveViewOfType(ItemView);
+		if (tempCanvasView?.getViewType() !== "canvas-parent-nodes-view") {
+			this.currentCanvasView = tempCanvasView;
+		}
+		console.log('Current view type:', this.currentCanvasView?.getViewType());
 		if (!this.isCanvasFile(file)) {
 			return {
 				nodes: [],
@@ -79,7 +84,6 @@ export default class CanvasParentNodesPlugin extends Plugin {
 		try {
 			const raw = await this.app.vault.read(file);
 			const parsed = JSON.parse(raw) as CanvasData;
-			this.currentCanvasView = this.app.workspace.getActiveViewOfType(ItemView)
 			const nodes = parsed.nodes ?? [];
 			const edges = parsed.edges ?? [];
 			const nodesWithIncoming = new Set(edges.map((edge) => edge.toNode));
@@ -154,8 +158,8 @@ export default class CanvasParentNodesPlugin extends Plugin {
 	}
 
 	getActiveCanvas(): any | null {
-		console.log('canvasView',this.currentCanvasView)
-		return this.currentCanvasView?.canvas ?? null;
+		console.log('canvasView',this.currentCanvasView.getViewType())
+		return this.currentCanvasView?.canvas;
 	}
 }
 
