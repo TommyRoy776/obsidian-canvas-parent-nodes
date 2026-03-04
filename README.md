@@ -2,7 +2,7 @@
 
 This is a plugin for displaying all Parent Nodes in Canvas (https://obsidian.md).
 ## Video Demo
-
+https://github.com/user-attachments/assets/501430a2-d0e0-4a1f-ba90-94b1e56d976d
 
 ## First time developing plugins?
 
