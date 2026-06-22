@@ -1,6 +1,6 @@
 {
 	"id": "canvas-parent-nodes",
-	"name": "Obsidian Canvas Parent Nodes",
+	"name": "Canvas Parent Nodes",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "Display and navigate to all canvas parent nodes",
