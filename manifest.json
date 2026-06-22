@@ -1,11 +1,10 @@
 {
-	"id": "obsidian-canvas-parent-nodes",
+	"id": "canvas-parent-nodes",
 	"name": "Obsidian Canvas Parent Nodes",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Display all canvas parent nodes",
+	"description": "Display and navigate to all canvas parent nodes",
 	"author": "TommyRoy776",
 	"authorUrl": "https://github.com/TommyRoy776",
-	"fundingUrl": "",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
