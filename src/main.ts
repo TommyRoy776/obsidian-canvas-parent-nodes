@@ -2,11 +2,12 @@ import { ItemView, Plugin, TAbstractFile, TFile, WorkspaceLeaf, View } from "obs
 import type { AllCanvasNodeData, CanvasData } from "obsidian/canvas";
 import { CanvasParentNodesSettings, DEFAULT_SETTINGS, CanvasParentNodesSettingTab } from "./settings";
 import { ParentNodesView, VIEW_TYPE_PARENT_NODES, ParentNodesViewData, ParentNodeInfo } from "./parent-nodes-view";
+import type { CanvasView } from "./helper";
 
 export default class CanvasParentNodesPlugin extends Plugin {
 	settings: CanvasParentNodesSettings;
 	private parentNodesView: ParentNodesView | null = null;
-	currentCanvasView: any = null;
+	currentCanvasView: ItemView | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -70,10 +71,10 @@ export default class CanvasParentNodesPlugin extends Plugin {
 	private async getParentNodesViewData(): Promise<ParentNodesViewData> {
 		const file = this.app.workspace.getActiveFile();
 		const tempCanvasView = this.app.workspace.getActiveViewOfType(ItemView);
-		if (tempCanvasView?.getViewType() !== "canvas-parent-nodes-view") {
+		if (tempCanvasView?.getViewType() !== VIEW_TYPE_PARENT_NODES) {
 			this.currentCanvasView = tempCanvasView;
 		}
-		console.log('Current view type:', this.currentCanvasView?.getViewType());
+		// console.log('Current view type:', this.currentCanvasView?.getViewType());
 		if (!this.isCanvasFile(file)) {
 			return {
 				nodes: [],
@@ -153,13 +154,14 @@ export default class CanvasParentNodesPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	get CurrentCanvasData(): CanvasData | null {
-		return this.currentCanvasData;
-	}
-
-	getActiveCanvas(): any | null {
-		console.log('canvasView',this.currentCanvasView.getViewType())
-		return this.currentCanvasView?.canvas;
+	getActiveCanvas(): CanvasView["canvas"] {
+		if (this.currentCanvasView?.getViewType() !== "canvas") {
+			this.currentCanvasView = (this.app.workspace.getLeavesOfType("canvas")[0]?.view as ItemView | undefined) ?? null;
+		}
+		if (!this.currentCanvasView || this.currentCanvasView.getViewType() !== "canvas") {
+			return null;
+		}
+		return (this.currentCanvasView as CanvasView).canvas ?? null;
 	}
 }
 

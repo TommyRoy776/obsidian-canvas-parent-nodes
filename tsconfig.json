@@ -17,6 +17,10 @@
 		"strictBindCallApply": true,
 		"allowSyntheticDefaultImports": true,
 		"useUnknownInCatchVariables": true,
+		"types": [
+			"jest",
+			"node"
+		],
 		"lib": [
 			"DOM",
 			"ES5",
@@ -25,6 +29,7 @@
 		]
 	},
 	"include": [
-		"src/**/*.ts"
+		"src/**/*.ts",
+		"test/**/*.ts"
 	]
 }

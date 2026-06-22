@@ -59,10 +59,12 @@ export class ParentNodesView extends ItemView {
 		const titleLength = this.plugin.settings.parentNodeTitleLength;
 		container.empty();
 
-		const headingText = this.data.canvasTitle
-			? `Parent nodes of canvas : ${this.data.canvasTitle}`
-			: "Canvas parent nodes";
-		container.createEl("h3", { text: headingText });
+		if (this.data.canvasTitle) {
+			container.createEl("h3", { text: "Parent nodes of canvas :" });
+			container.createEl("h4", { text: this.data.canvasTitle, attr: { style: "font-style: italic;" } });
+		} else {
+			container.createEl("h3", { text: "Canvas parent nodes" });
+		}
 
 		if (this.data.message) {
 			container.createEl("p", { text: this.data.message, cls: "canvas-parent-nodes-message" });
@@ -75,14 +77,14 @@ export class ParentNodesView extends ItemView {
 		const list = container.createEl("ul", { cls: "canvas-parent-nodes-list" });
 		for (const node of this.data.nodes) {
 			const item = list.createEl("li", { cls: "canvas-parent-nodes-item" });
-			let label = node.label.replace(/[^\p{L}\p{N}\s]+/gu, '');
+			let label = node.label.replace(/[^\p{L}\p{N}\s!?.,;:'"()-]+/gu, '');
             if(label.length > titleLength) {
                 label = label.substring(0, titleLength) + '...';
             }
 			item.createSpan({ cls: "canvas-parent-nodes-label", text: label });
 			item.createSpan({ cls: "canvas-parent-nodes-type", text: node.type });
             item.addEventListener("click", () => {
-				console.log(`Zooming to node ${node.id}...`);
+				// console.log(`Zooming to node ${node.id}...`);
                 void zoomToNode(this.plugin, node.id);
             });
 		}
