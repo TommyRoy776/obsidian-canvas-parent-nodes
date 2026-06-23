@@ -3,7 +3,7 @@
 	"name": "Canvas Parent Nodes",
 	"version": "1.0.0",
 	"minAppVersion": "1.7.2",
-	"description": "Display and navigate to all canvas parent nodes",
+	"description": "Display and navigate to all canvas parent nodes.",
 	"author": "TommyRoy776",
 	"authorUrl": "https://github.com/TommyRoy776",
 	"isDesktopOnly": true
