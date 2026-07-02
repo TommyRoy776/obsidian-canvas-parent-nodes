@@ -7,6 +7,12 @@
 	color: var(--text-muted);
 }
 
+.canvas-parent-nodes-search {
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: 0.5rem;
+}
+
 .canvas-parent-nodes-list {
 	list-style: none;
 	margin: 0;

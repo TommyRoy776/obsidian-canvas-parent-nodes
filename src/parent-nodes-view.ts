@@ -74,6 +74,11 @@ export class ParentNodesView extends ItemView {
 			return;
 		}
 
+		const searchInput = container.createEl("input", {
+			cls: "canvas-parent-nodes-search",
+			attr: { type: "text", placeholder: "Search parent node title" },
+		});
+
 		const list = container.createEl("ul", { cls: "canvas-parent-nodes-list" });
 		for (const node of this.data.nodes) {
 			const item = list.createEl("li", { cls: "canvas-parent-nodes-item" });
@@ -88,5 +93,13 @@ export class ParentNodesView extends ItemView {
                 void zoomToNode(this.plugin, node.id);
             });
 		}
+
+		searchInput.addEventListener("input", () => {
+			const query = searchInput.value.toLowerCase();
+			list.querySelectorAll<HTMLElement>(".canvas-parent-nodes-item").forEach((item) => {
+				const label = item.querySelector(".canvas-parent-nodes-label")?.textContent ?? "";
+				item.style.display = label.toLowerCase().includes(query) ? "" : "none";
+			});
+		});
 	}
 }
