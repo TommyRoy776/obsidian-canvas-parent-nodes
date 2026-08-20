@@ -8,6 +8,6 @@ https://github.com/user-attachments/assets/501430a2-d0e0-4a1f-ba90-94b1e56d976d
 In settings, you can set the length of node title. Click on node titles on the right sidebar to navigate to the parent node. 
 
 ## Support 
-Just a simple request: 
-I am looking for a new job in the US, connect me on Linkedin please 
+Just simple requests: 
+Give me a Star on Github. I am looking for a new job in the US, connect me on Linkedin please !! 
 
