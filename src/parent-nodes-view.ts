@@ -16,11 +16,14 @@ export interface ParentNodesViewData {
 	message?: string;
 }
 
+const PAGE_SIZE = 15;
+
 export class ParentNodesView extends ItemView {
 	private data: ParentNodesViewData = {
 		nodes: [],
 		message: "Open a canvas to see its root nodes.",
 	};
+	private currentPage = 1;
 
 	constructor(leaf: WorkspaceLeaf, private readonly plugin: CanvasParentNodesPlugin) {
 		super(leaf);
@@ -51,6 +54,7 @@ export class ParentNodesView extends ItemView {
 
 	setViewData(data: ParentNodesViewData): void {
 		this.data = data;
+		this.currentPage = 1;
 		this.render();
 	}
 
@@ -80,26 +84,59 @@ export class ParentNodesView extends ItemView {
 		});
 
 		const list = container.createEl("ul", { cls: "canvas-parent-nodes-list" });
-		for (const node of this.data.nodes) {
-			const item = list.createEl("li", { cls: "canvas-parent-nodes-item" });
-			let label = node.label.replace(/[^\p{L}\p{N}\s!?.,;:'"()-]+/gu, '');
-            if(label.length > titleLength) {
-                label = label.substring(0, titleLength) + '...';
-            }
-			item.createSpan({ cls: "canvas-parent-nodes-label", text: label });
-			item.createSpan({ cls: "canvas-parent-nodes-type", text: node.type });
-            item.addEventListener("click", () => {
-				// console.log(`Zooming to node ${node.id}...`);
-                void zoomToNode(this.plugin, node.id);
-            });
-		}
+		const pagination = container.createDiv({ cls: "canvas-parent-nodes-pagination" });
+
+		const renderPage = () => {
+			const query = searchInput.value.toLowerCase();
+			const filtered = this.data.nodes.filter((node) => node.label.toLowerCase().includes(query));
+			const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+			this.currentPage = Math.min(Math.max(this.currentPage, 1), totalPages);
+
+			const start = (this.currentPage - 1) * PAGE_SIZE;
+			const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+			list.empty();
+			for (const node of pageItems) {
+				const item = list.createEl("li", { cls: "canvas-parent-nodes-item" });
+				let label = node.label.replace(/[^\p{L}\p{N}\s!?.,;:'"()-]+/gu, '');
+				if (label.length > titleLength) {
+					label = label.substring(0, titleLength) + '...';
+				}
+				item.createSpan({ cls: "canvas-parent-nodes-label", text: label });
+				item.createSpan({ cls: "canvas-parent-nodes-type", text: node.type });
+				item.addEventListener("click", () => {
+					void zoomToNode(this.plugin, node.id);
+				});
+			}
+
+			pagination.empty();
+			if (filtered.length > PAGE_SIZE) {
+				const prevBtn = pagination.createEl("button", { cls: "canvas-parent-nodes-page-btn", text: "Previous" });
+				prevBtn.disabled = this.currentPage <= 1;
+				prevBtn.addEventListener("click", () => {
+					this.currentPage -= 1;
+					renderPage();
+				});
+
+				pagination.createSpan({
+					cls: "canvas-parent-nodes-page-indicator",
+					text: `Page ${this.currentPage} of ${totalPages}`,
+				});
+
+				const nextBtn = pagination.createEl("button", { cls: "canvas-parent-nodes-page-btn", text: "Next" });
+				nextBtn.disabled = this.currentPage >= totalPages;
+				nextBtn.addEventListener("click", () => {
+					this.currentPage += 1;
+					renderPage();
+				});
+			}
+		};
 
 		searchInput.addEventListener("input", () => {
-			const query = searchInput.value.toLowerCase();
-			list.querySelectorAll<HTMLElement>(".canvas-parent-nodes-item").forEach((item) => {
-				const label = item.querySelector(".canvas-parent-nodes-label")?.textContent ?? "";
-				item.style.display = label.toLowerCase().includes(query) ? "" : "none";
-			});
+			this.currentPage = 1;
+			renderPage();
 		});
+
+		renderPage();
 	}
 }

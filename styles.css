@@ -1,4 +1,8 @@
 .canvas-parent-nodes-view {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	box-sizing: border-box;
 	padding: 0.75rem;
 }
 
@@ -20,6 +24,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.25rem;
+	overflow-y: auto;
 }
 
 .canvas-parent-nodes-item {
@@ -40,4 +45,24 @@
 	font-size: 0.8em;
 	color: var(--text-muted);
 	margin-left: 0.5rem;
+}
+
+.canvas-parent-nodes-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-top: auto;
+	padding-top: 0.5rem;
+	flex-shrink: 0;
+}
+
+.canvas-parent-nodes-page-indicator {
+	font-size: 0.85em;
+	color: var(--text-muted);
+}
+
+.canvas-parent-nodes-page-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
 }
