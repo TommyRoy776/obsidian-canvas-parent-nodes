@@ -62,3 +62,80 @@ describe("toParentNodeInfo", () => {
         });
     });
 });
+
+describe("getActiveCanvas", () => {
+    function makeLeaf(file: unknown, canvas: unknown) {
+        return { view: { file, canvas } };
+    }
+
+    function makePlugin(app: unknown): any {
+        return new CanvasParentNodesPlugin(app as any, {} as any);
+    }
+
+    it("returns the canvas belonging to the active file when multiple canvases are open", () => {
+        const activeFile = { path: "b.canvas" };
+        const canvasA = { name: "A" };
+        const canvasB = { name: "B" };
+        const app = {
+            workspace: {
+                getActiveFile: () => activeFile,
+                getLeavesOfType: () => [
+                    makeLeaf({ path: "a.canvas" }, canvasA),
+                    makeLeaf(activeFile, canvasB),
+                ],
+            },
+        };
+
+        expect(makePlugin(app).getActiveCanvas()).toBe(canvasB);
+    });
+
+    it("falls back to the first canvas leaf when no leaf matches the active file", () => {
+        const canvasA = { name: "A" };
+        const canvasB = { name: "B" };
+        const app = {
+            workspace: {
+                getActiveFile: () => ({ path: "not-open.canvas" }),
+                getLeavesOfType: () => [
+                    makeLeaf({ path: "a.canvas" }, canvasA),
+                    makeLeaf({ path: "b.canvas" }, canvasB),
+                ],
+            },
+        };
+
+        expect(makePlugin(app).getActiveCanvas()).toBe(canvasA);
+    });
+
+    it("returns null when there are no canvas leaves open", () => {
+        const app = {
+            workspace: {
+                getActiveFile: () => null,
+                getLeavesOfType: () => [],
+            },
+        };
+
+        expect(makePlugin(app).getActiveCanvas()).toBeNull();
+    });
+
+    it("stays correct after focus moved through an unrelated panel (regression)", () => {
+        // Previously, focusing another plugin's panel overwrote a cached
+        // "currentCanvasView" with a non-canvas view. getActiveCanvas() then fell
+        // back to the first canvas leaf instead of the one matching the active
+        // file, so zoomToNode silently targeted the wrong canvas.
+        const activeFile = { path: "b.canvas" };
+        const canvasA = { name: "A" };
+        const canvasB = { name: "B" };
+        const app = {
+            workspace: {
+                getActiveFile: () => activeFile,
+                getLeavesOfType: () => [
+                    makeLeaf({ path: "a.canvas" }, canvasA),
+                    makeLeaf(activeFile, canvasB),
+                ],
+            },
+        };
+        const pluginInstance = makePlugin(app);
+        pluginInstance.currentCanvasView = { getViewType: () => "some-other-plugin-view" };
+
+        expect(pluginInstance.getActiveCanvas()).toBe(canvasB);
+    });
+});

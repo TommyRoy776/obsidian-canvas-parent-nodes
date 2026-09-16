@@ -70,11 +70,6 @@ export default class CanvasParentNodesPlugin extends Plugin {
 
 	private async getParentNodesViewData(): Promise<ParentNodesViewData> {
 		const file = this.app.workspace.getActiveFile();
-		const tempCanvasView = this.app.workspace.getActiveViewOfType(ItemView);
-		if (tempCanvasView?.getViewType() !== VIEW_TYPE_PARENT_NODES) {
-			this.currentCanvasView = tempCanvasView;
-		}
-		// console.log('Current view type:', this.currentCanvasView?.getViewType());
 		if (!this.isCanvasFile(file)) {
 			return {
 				nodes: [],
@@ -155,10 +150,11 @@ export default class CanvasParentNodesPlugin extends Plugin {
 	}
 
 	getActiveCanvas(): CanvasView["canvas"] {
-		if (this.currentCanvasView?.getViewType() !== "canvas") {
-			this.currentCanvasView = (this.app.workspace.getLeavesOfType("canvas")[0]?.view as ItemView | undefined) ?? null;
-		}
-		if (!this.currentCanvasView || this.currentCanvasView.getViewType() !== "canvas") {
+		const file = this.app.workspace.getActiveFile();
+		const canvasLeaves = this.app.workspace.getLeavesOfType("canvas");
+		const leaf = canvasLeaves.find((l) => (l.view as CanvasView).file === file) ?? canvasLeaves[0];
+		this.currentCanvasView = (leaf?.view as ItemView) ?? null;
+		if (!this.currentCanvasView) {
 			return null;
 		}
 		return (this.currentCanvasView as CanvasView).canvas ?? null;
